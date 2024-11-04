@@ -1,0 +1,3 @@
+com\example\ApplicationConfig.class
+com\example\services\StudentService.class
+com\example\entities\Student.class

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students List</title>
+</head>
+<body>
+    <h1>Students List</h1>
+    <div id="students"></div>
+
+    <script>
+        fetch('/ca1_martincepanec-1.0-SNAPSHOT/api/students')
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Failed to load students');
+                }
+            })
+            .then(data => {
+                console.log('Fetched data:', data);
+                const studentsDiv = document.getElementById('students');
+                if (Array.isArray(data) && data.length > 0) {
+                    studentsDiv.innerHTML = data.map(student => `<p>${student.name} - ${student.programmeCode}</p>`).join('');
+                } else {
+                    studentsDiv.innerHTML = `<p>No students found.</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching students:', error);
+                document.getElementById('students').innerHTML = `<p>${error.message}</p>`;
+            });
+    </script>
+</body>
+</html>
