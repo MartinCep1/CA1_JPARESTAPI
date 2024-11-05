@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CA1 Project API</title>
+</head>
+<body>
+    <div>
+        <h2>Students</h2>
+        <a href="/ca1project/api/students" target="_blank">List All Students</a><br><br>
+        <input id="get-student-id" placeholder="Student ID" type="number">
+        <button onclick="fetchData('students', getElementValue('get-student-id'), 'GET')">Get Student</button><br><br>
+
+        <input id="student-name" placeholder="Name" type="text">
+        <input id="student-number" placeholder="Student Number" type="text">
+        <input id="phone-number" placeholder="Phone Number" type="text">
+        <input id="address" placeholder="Address" type="text">
+        <input id="program-code" placeholder="Program Code" type="text">
+        <button onclick="createStudent()">Create Student</button><br><br>
+
+        <input id="delete-student-id" placeholder="Student ID" type="number">
+        <button onclick="fetchData('students', getElementValue('delete-student-id'), 'DELETE')">Delete Student</button>
+    </div>
+
+    <div>
+        <h2>Loans</h2>
+        <a href="/ca1project/api/loans" target="_blank">List All Loans</a><br><br>
+        <input id="get-loan-id" placeholder="Loan ID" type="number">
+        <button onclick="fetchData('loans', getElementValue('get-loan-id'), 'GET')">Get Loan</button><br><br>
+        
+        <input id="loan-student-id" placeholder="Student ID" type="number">
+        <input id="loan-description" placeholder="Description" type="text">
+        <input id="loan-amount" placeholder="Amount" type="number">
+        <button onclick="createLoan()">Create Loan</button>
+    </div>
+
+    <div>
+        <h2>Deposits</h2>
+        <a href="/ca1project/api/deposits" target="_blank">List All Deposits</a><br><br>
+        <input id="get-deposits-loan-id" placeholder="Loan ID" type="number">
+        <button onclick="fetchData('deposits/loan', getElementValue('get-deposits-loan-id'), 'GET')">Get Deposits</button><br><br>
+        <input id="deposit-loan-id" placeholder="Loan ID" type="number">
+        <input id="deposit-amount" placeholder="Amount" type="number">
+        <button onclick="addDeposit()">Add Deposit</button>
+    </div>
+
+    <div>
+        <h2>Admin</h2>
+        <button onclick="fetchData('admin/deleteAll', '', 'DELETE')">Delete All Data</button>
+    </div>
+
+    <div class="section">
+        <h2>Full Report</h2>
+        <button onclick="getFullReport()">Show All Students with Loans and Deposits</button>
+    </div>
+
+    <script>
+        const apiBaseUrl = '/ca1project/api';
+
+        function getElementValue(id) {
+            return document.getElementById(id).value;
+        }
+
+        function fetchData(endpoint, id = '', method = 'GET', data = null) {
+            const url = `${apiBaseUrl}/${endpoint}${id ? '/' + id : ''}`;
+            const options = { method };
+            if (data) {
+                options.headers = { 'Content-Type': 'application/json' };
+                options.body = JSON.stringify(data);
+            }
+            fetch(url, options)
+                .then(response => response.ok ? response.json() : Promise.reject('Failed'))
+                .then(data => alert(JSON.stringify(data)))
+                .catch(error => alert('Error: ' + error));
+        }
+
+        function createStudent() {
+            const student = {
+                name: getElementValue('student-name'),
+                studentNumber: getElementValue('student-number'),
+                phoneNumber: getElementValue('phone-number'),
+                address: getElementValue('address'),
+                programCode: getElementValue('program-code')
+            };
+            fetchData('students', '', 'POST', student);
+        }
+
+        function createLoan() {
+            const loan = {
+                description: getElementValue('loan-description'),
+                amount: parseFloat(getElementValue('loan-amount'))
+            };
+            const studentId = getElementValue('loan-student-id');
+            fetchData(`loans/student/${studentId}`, '', 'POST', loan);
+        }
+
+        function addDeposit() {
+            const deposit = { amount: parseFloat(getElementValue('deposit-amount')) };
+            const loanId = getElementValue('deposit-loan-id');
+            fetchData(`deposits/loan/${loanId}`, '', 'POST', deposit);
+        }
+
+        function getFullReport() {
+            fetch('/ca1project/api/report/allStudentData')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    alert(JSON.stringify(data, null, 2));
+                })
+                .catch(error => alert('Error fetching report: ' + error));
+        }
+    </script>
+</body>
+</html>
